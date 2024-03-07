@@ -56,51 +56,73 @@ def get_col(board, col):
 # returns an array with the input row
 def get_row(board, row):
     arr = ['.' for _ in range(board_size)]
-    i = 0
-    for _ in range(board_size):
-        arr[i] = board[row][i]
-        i += 1
-    return arr
+    threat_arr = []
+    for i in range(len(arr)-1):
+        if board[row][i] == 'Q':
+            arr[i] = board[row][i]
+            threat_arr.append((row, i))
+    return arr, threat_arr
 
 
 def get_UR(board, row, col):
     ur_arr = []
+    threat_arr = []
     while row >= 0 and col < len(board[row]):
         ur_arr.append(board[row][col])
+        if board[row][col] == 'Q':
+            threat_arr.append((row, col))
+
         row -= 1
         col += 1
-    ur_arr[0] = '.'
-    return ur_arr
+    ur_arr.pop(0)
+    threat_arr.pop(0)
+    return ur_arr, threat_arr
 
 
 def get_UL(board, row, col):
     ul_arr = []
+    threat_arr = []
     while row >= 0 and col >= 0:
         ul_arr.append(board[row][col])
+        if board[row][col] == 'Q':
+            threat_arr.append((row, col))
         row -= 1
         col -= 1
-    ul_arr[0] = '.'
-    return ul_arr
+    ul_arr.pop(0)
+    threat_arr.pop(0)
+    return ul_arr, threat_arr
 
 
 def get_LR(board, row, col):
     lr_arr = []
+    threat_arr = []
     while row < len(board) and col < len(board[row]):
         lr_arr.append(board[row][col])
+        if board[row][col] == 'Q':
+            threat_arr.append((row, col))
         row += 1
         col += 1
-    lr_arr[0] = '.'
-    return lr_arr
+    lr_arr.pop(0)
+    threat_arr.pop(0)
+    return lr_arr, threat_arr
 
 
 def get_LL(board, row, col):
     ll_arr = []
+    threat_arr = []
     while row < len(board) and col >= 0:
         ll_arr.append(board[row][col])
+        if board[row][col] == 'Q':
+            threat_arr.append((row, col))
         row += 1
         col -= 1
-    ll_arr[0] = '.'
-    return ll_arr
+    ll_arr.pop(0)
+    if threat_arr[0]:
+        threat_arr.pop()
+    return ll_arr, threat_arr
+
+
+# def eval_threats(board):
 
 
 def calculate_heuristic(board):
@@ -110,19 +132,59 @@ def calculate_heuristic(board):
     # Initialize the array with zeros
     heuristics = [[0 for _ in range(board_size)] for _ in range(board_size)]
 
+
+
     # loop columns
     for i in range(0, board_size):
-        curr_q_row = get_col(board, i).index('Q')
-        # print(i)
-        # print(get_col(board, i))
 
-        # get counts for each threat angle
-        if get_row(board, curr_q_row).__contains__('Q'):
-            heuristics[curr_q_row][i] += get_row(board, curr_q_row).count('Q')-1
-        heuristics[curr_q_row][i] += get_UL(board, curr_q_row, i).count('Q')
-        heuristics[curr_q_row][i] += get_UR(board, curr_q_row, i).count('Q')
-        heuristics[curr_q_row][i] += get_LL(board, curr_q_row, i).count('Q')
-        heuristics[curr_q_row][i] += get_LR(board, curr_q_row, i).count('Q')
+        q_list = []
+
+        curr_q_row = get_col(board, i).index('Q')
+        side_func = get_row(board, curr_q_row)[1]
+
+        for _ in range(len(side_func)):
+            arr = side_func
+            side = ((curr_q_row, i), arr[_])
+
+            if side not in q_list and side[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
+                q_list.append(side)
+
+        ul_func = get_UL(board, curr_q_row, i)[1]
+
+        if len(ul_func) > 0:
+            for _ in range(len(ul_func)):
+                arr = ul_func
+                ul = ((curr_q_row, i), arr[_])
+                if ul not in q_list and ul[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
+                    q_list.append(ul)
+
+        ur_func = get_UR(board, curr_q_row, i)[1]
+        if len(ur_func) > 0:
+            for _ in range(len(ur_func)):
+                arr = ur_func
+                ur = ((curr_q_row, i), arr[_])
+                if ur not in q_list and ur[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
+                    q_list.append(ur)
+
+        ll_func = get_LL(board, curr_q_row, i)[1]
+        if len(ll_func) > 0:
+            for _ in range(len(ll_func)):
+                arr = ll_func
+                ll = ((curr_q_row, i), arr[_])
+                if ll not in q_list and ll[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
+                    q_list.append(ll)
+
+        lr_func = get_LR(board, curr_q_row, i)[1]
+        if len(lr_func) > 0:
+            for _ in range(len(lr_func)):
+                arr = lr_func
+                lr = ((curr_q_row, i), arr[_])
+                if lr not in q_list and lr[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
+                    q_list.append(lr)
+
+    print(q_list)
+    h = len(q_list)
+    print(h)
 
     return heuristics
 
@@ -140,13 +202,13 @@ for row in chessboard:
 
 x, y = convert_coords(2, 3)
 
+calculate_heuristic(chessboard)
+# for _ in calculate_heuristic(chessboard):
+#     print(' '.join(str(_)))
 
-for _ in calculate_heuristic(chessboard):
-    print(' '.join(str(_)))
-
-print(get_row(chessboard, x))
-print(get_col(chessboard, y))
-print(get_UR(chessboard, x, y))
-print(get_UL(chessboard, x, y))
-print(get_LR(chessboard, x, y))
-print(get_LL(chessboard, x, y))
+# print(get_row(chessboard, x))
+# print(get_col(chessboard, y))
+# print(get_UR(chessboard, x, y))
+# print(get_UL(chessboard, x, y))
+# print(get_LR(chessboard, x, y))
+# print(get_LL(chessboard, x, y))
