@@ -24,10 +24,8 @@ def place_queen(board, col, row):
     # place the fixed queen, if not in the fixed column place in sequential row and random row
     if col == fixed_queen_pos[1]:  # Check if the current column matches the fixed queen column
         board[8 - fixed_queen_pos[1]][col] = '∆'
-        # print('Fixed ∆ placed at (' + str(col + 1) + ', ' + str(fixed_queen_pos[1]) + ')')
     else:
         board[7 - row][col] = 'Q'
-        # print('Queen placed at (' + str(col + 1) + ', ' + str(row + 1) + ')')
 
 
 def remove_queen(board, col, row):
@@ -132,15 +130,14 @@ def solution(board):
 # def random_restart(board, col):
 
 
-    #PARSE IN I FROM HILL CLIMB, make code easier to read and understand so you can debug better
+# PARSE IN I FROM HILL CLIMB, make code easier to read and understand so you can debug better
 
 
 def calc_heuristic_array(board):
-
     heuristics = [[0 for _ in range(board_size)] for _ in range(board_size)]
 
     for i in range(0, board_size):
-        #reset variables for each column
+        # reset variables for each column
         print("column: " + str(i))
         col = i
         free_positions = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -173,46 +170,37 @@ def calc_heuristic_array(board):
 
     return heuristics
 
+
+def find_element_2d(array_2d, target):
+    return [(row_idx, col_idx) for row_idx, row in enumerate(array_2d)
+            for col_idx, val in enumerate(row) if val == target]
+
+
+def get_lowest_value_2d(array_2d):
+    flat_list = [val for row in array_2d for val in row]
+    return min(flat_list)
+
+
 def hill_climb(board):
-    # Initialize the array with zeros
 
+    heuristics = calc_heuristic_array(board)
 
-    board_solutions = []
-    lowest_h_arr = []
+    min_h = get_lowest_value_2d(heuristics)
 
-    # DO THE CODE HERE ---- ABOVE JUST CALC'S THE HEURISTICS, YOU NEED TO GET THE COORDS OF EACH LOWEST HEURISTIC IN THAT COLUMN, STORE IT
-    # RECURSIVE FUNCTION, IF IT SOLVES THEN SOUND. MAKE HILL CLIMB ONLY RETURN SOLUTION, HEURISTIC ARRAY AND ARRAY OF WHERE TO GO NECT IDFK
+    lowest_h_poss = find_element_2d(heuristics, min_h)
 
-    #storing lowest heuristics for that array
-#     h_col_arr.append((h, heuristics[row].index(min(heuristics[row])), col))
-#
-# if h_col_arr.count(min(h_col_arr)) > 0:
-#     lowest_h_arr.append(h_col_arr[h_col_arr.index(min(h_col_arr))])
-#
-#
-# board[og_queen_row][col] = 'Q'
-#
-# if min(lowest_h_arr[0]) == 0:
-#     board_solutions.append(board)
-#
-# # loop through each columns lowest heuristic
-# for j in range(len(lowest_h_arr)):
-#     new_queen = lowest_h_arr[j][1], lowest_h_arr[j][2]
-#     board[get_col(board, new_queen[1]).index('Q')][new_queen[1]] = '.'
-#     board[new_queen[0]][new_queen[1]] = 'Q'
-    # hill_climb(board)
-    # potentially second 2d array with just lowest heuristic stored
+    print(lowest_h_poss)
+    for x in heuristics:
+        print('  '.join('{:2}'.format(num) for num in x))
 
+    if min_h == 0:
+        return board
 
-
-# get heuristic for each column from func
-    # use the lowest h arr to then calc heuristic for each state
-    #
-
-
-
-        #get each board, have them run in parallel, if it runs for more than 100 then leave it.
-    return board_solutions
+    for i in range(len(lowest_h_poss)):
+        coords = lowest_h_poss[i]
+        board[get_col(board, coords[1]).index('Q')][coords[1]] = '.'
+        board[coords[0]][coords[1]] = 'Q'
+        hill_climb(board)
 
 
 def calculate_heuristic(board):
@@ -224,7 +212,6 @@ def calculate_heuristic(board):
     # loop columns
     for i in range(0, board_size):
 
-        # print(get_col(board, i).index('Q'))
         curr_q_row = get_col(board, i).index('Q')
         side_func = get_row(board, curr_q_row)[1]
 
@@ -267,8 +254,6 @@ def calculate_heuristic(board):
                 lr = ((curr_q_row, i), arr[_])
                 if lr not in q_list and lr[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
                     q_list.append(lr)
-    print("#############")
-    # print(q_list)
     h = len(q_list)
 
     return h
@@ -288,6 +273,5 @@ for row in chessboard:
 
 x, y = convert_coords(2, 3)
 
-for x in calc_heuristic_array(chessboard):
-    print('  '.join('{:2}'.format(num) for num in x))
-
+print(hill_climb(chessboard))
+print("#########################")
