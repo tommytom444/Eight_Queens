@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="703f964e-6168-4b02-b0c8-ed4d47253cd9" name="Changes" comment="Re-structuring code to make use of the heuristic.&#10;A bit messy atm but haven't committed in a while.">
+    <list default="true" id="703f964e-6168-4b02-b0c8-ed4d47253cd9" name="Changes" comment="IT WORKS&#10;sometimes gets stuck on local minimum, working on random restart implementation now">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Eight_Queens.py" beforeDir="false" afterPath="$PROJECT_DIR$/Eight_Queens.py" afterDir="false" />
     </list>
@@ -54,7 +54,7 @@
       <updated>1709213430457</updated>
       <workItem from="1709213431758" duration="22364000" />
       <workItem from="1709657395135" duration="41572000" />
-      <workItem from="1710167339104" duration="35060000" />
+      <workItem from="1710167339104" duration="39601000" />
     </task>
     <task id="LOCAL-00001" summary="Heuristics work, accurately stores how many threats a queen has and in which position in a 2D array.&#10;&#10;It's wrong though, I'm meant to go about it differently.">
       <created>1709772705990</created>
@@ -84,7 +84,14 @@
       <option name="project" value="LOCAL" />
       <updated>1710371881774</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="IT WORKS&#10;sometimes gets stuck on local minimum, working on random restart implementation now">
+      <created>1710373684285</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1710373684285</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -105,11 +112,12 @@
     <MESSAGE value="Heuristics work, accurately stores how many threats a queen has and in which position in a 2D array.&#10;&#10;It's wrong though, I'm meant to go about it differently." />
     <MESSAGE value="Heuristics now work, just need to apply to every possible combination" />
     <MESSAGE value="Re-structuring code to make use of the heuristic.&#10;A bit messy atm but haven't committed in a while." />
-    <option name="LAST_COMMIT_MESSAGE" value="Re-structuring code to make use of the heuristic.&#10;A bit messy atm but haven't committed in a while." />
+    <MESSAGE value="IT WORKS&#10;sometimes gets stuck on local minimum, working on random restart implementation now" />
+    <option name="LAST_COMMIT_MESSAGE" value="IT WORKS&#10;sometimes gets stuck on local minimum, working on random restart implementation now" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Eight_Queens$Eight_Queens_Simple.coverage" NAME="Eight_Queens_Simple Coverage Results" MODIFIED="1709784979503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Eight_Queens$Eight_Queens.coverage" NAME="Eight_Queens Coverage Results" MODIFIED="1710373622490" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Eight_Queens$test.coverage" NAME="test Coverage Results" MODIFIED="1710372149855" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Eight_Queens$Eight_Queens.coverage" NAME="Eight_Queens Coverage Results" MODIFIED="1710377975281" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Eight_Queens$test.coverage" NAME="test Coverage Results" MODIFIED="1710375462165" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

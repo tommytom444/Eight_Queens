@@ -1,28 +1,27 @@
 import random
 
-# My student ID
+# my student ID
 studentID = 2261292
 
-# Convert student ID to string
+# convert student ID to string
 studentID_str = str(studentID)
 k = int(studentID_str[-1])
 l = int(studentID_str[-2])
 
-# Define coordinates for fixed queen
+# define coordinates for fixed queen
 fixed_queen_pos = ((k % 8) + 1, (l % 8) + 1)
 
-# Generate the empty board
+# generate the empty board
 board_size = 8
 chessboard = [['.' for col in range(board_size)] for row in range(board_size)]
 board_list = []
 queen_pairs_list = []
 
 
+# place queen's in their respective positions
 def place_queen(board, col, row):
-    # row and col -1 due to 0-index
-
-    # place the fixed queen, if not in the fixed column place in sequential row and random row
-    if col == fixed_queen_pos[1]:  # Check if the current column matches the fixed queen column
+    # place the fixed queen
+    if col == fixed_queen_pos[1]:
         board[8 - fixed_queen_pos[1]][col] = '∆'
     else:
         board[7 - row][col] = 'Q'
@@ -33,14 +32,7 @@ def remove_queen(board, col, row):
     board[row - 1][col] = '.'
 
 
-def convert_coords(row, col):
-    row_index = 8 - row
-    col_index = col - 1
-
-    return row_index, col_index
-
-
-# returns an array with the input column
+# returns an array with the input column's data
 def get_col(board, col):
     # col -= 1
     arr = ['.' for _ in range(board_size)]
@@ -51,7 +43,7 @@ def get_col(board, col):
     return arr
 
 
-# returns an array with the input row
+# returns an array with the input row's data
 def get_row(board, row):
     arr = ['.' for _ in range(board_size)]
     threat_arr = []
@@ -120,16 +112,6 @@ def get_LL(board, row, col):
     return ll_arr, threat_arr
 
 
-# def eval_threats(board):
-def solution(board):
-    solutions = 0
-
-    return hill_climb(board)
-
-
-# def random_restart(board, col):
-
-
 # PARSE IN I FROM HILL CLIMB, make code easier to read and understand so you can debug better
 
 
@@ -181,49 +163,65 @@ def get_lowest_value_2d(array_2d):
     return min(flat_list)
 
 
-def hill_climb(board):
+def hill_climb(board, depth=0, sideways=0, max_depth=80, max_sideways=3, prev_heuristic=None):
+    if depth >= max_depth:
+        return "max depth reached"
 
     heuristics = calc_heuristic_array(board)
-
     min_h = get_lowest_value_2d(heuristics)
-
     lowest_h_poss = find_element_2d(heuristics, min_h)
 
-    print(lowest_h_poss)
-    for x in heuristics:
-        print('  '.join('{:2}'.format(num) for num in x))
+    print("Depth:", depth)
+    print("Heuristic:", min_h)
+    print("Sideways:", sideways)
+    print("Lowest H Poss:", lowest_h_poss)
 
     if min_h == 0:
+        coords = lowest_h_poss[0]
+        board[get_col(board, coords[1]).index('Q')][coords[1]] = '.'
+        board[8 - fixed_queen_pos[1]][fixed_queen_pos[0] - 1] = '∆'
+        board[coords[0]][coords[1]] = 'Q'
+        print("Solution found at depth:", depth)
         return board
+
+    if prev_heuristic is not None and min_h == prev_heuristic:
+        sideways += 1
+        if sideways >= max_sideways:
+            row = random.randint(0, board_size - 1)
+            col = random.randint(0, board_size - 1)
+            board[get_col(board, col).index('Q')][col] = '.'
+            board[row][col] = 'Q'
+            print("Random Restart at depth:", depth)
+            return hill_climb(board, depth + 1, sideways=0, max_depth=max_depth)
+    else:
+        sideways = 0
 
     for i in range(len(lowest_h_poss)):
         coords = lowest_h_poss[i]
         board[get_col(board, coords[1]).index('Q')][coords[1]] = '.'
         board[coords[0]][coords[1]] = 'Q'
-        hill_climb(board)
+        result = hill_climb(board, depth + 1, sideways, max_depth, max_sideways, min_h)
+        if result != "no result found within max depth":
+            return result
+
+    return "no result found within max depth"
 
 
 def calculate_heuristic(board):
-    # REMEMBER TO SWITCH IT BACK TO ∆ WHEN STORING AND DISPLAYING
     board[8 - fixed_queen_pos[1]][fixed_queen_pos[0] - 1] = 'Q'
-
     q_list = []
 
-    # loop columns
     for i in range(0, board_size):
-
         curr_q_row = get_col(board, i).index('Q')
         side_func = get_row(board, curr_q_row)[1]
 
         for _ in range(len(side_func)):
             arr = side_func
             side = ((curr_q_row, i), arr[_])
-
             if side not in q_list and side[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
                 q_list.append(side)
 
         ul_func = get_UL(board, curr_q_row, i)[1]
-
         if len(ul_func) > 0:
             for _ in range(len(ul_func)):
                 arr = ul_func
@@ -271,7 +269,13 @@ for col in range(board_size):  # 0..7
 for row in chessboard:
     print('  '.join(row))
 
-x, y = convert_coords(2, 3)
+# generate a solution using the hill climb algorithm
+solution = hill_climb(chessboard)
 
-print(hill_climb(chessboard))
-print("#########################")
+# Check if solution is a string
+if isinstance(solution, str):
+    print(solution)
+else:
+    # Display the board
+    for row in solution:
+        print('  '.join(row))
