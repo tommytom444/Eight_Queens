@@ -54,6 +54,7 @@ def get_row(board, row):
     return arr, threat_arr
 
 
+# returns an array for upper right diagonal
 def get_UR(board, row, col):
     ur_arr = []
     threat_arr = []
@@ -69,6 +70,7 @@ def get_UR(board, row, col):
     return ur_arr, threat_arr
 
 
+# returns an array for upper left diagonal
 def get_UL(board, row, col):
     ul_arr = []
     threat_arr = []
@@ -83,6 +85,7 @@ def get_UL(board, row, col):
     return ul_arr, threat_arr
 
 
+# returns an array for lower right diagonal
 def get_LR(board, row, col):
     lr_arr = []
     threat_arr = []
@@ -97,6 +100,7 @@ def get_LR(board, row, col):
     return lr_arr, threat_arr
 
 
+# returns an array for lower left diagonal
 def get_LL(board, row, col):
     ll_arr = []
     threat_arr = []
@@ -112,43 +116,44 @@ def get_LL(board, row, col):
     return ll_arr, threat_arr
 
 
-# PARSE IN I FROM HILL CLIMB, make code easier to read and understand so you can debug better
-
-
+# generate 2D heuristic array for a given board
 def calc_heuristic_array(board):
+    # initialise 2D heuristic array
     heuristics = [[0 for _ in range(board_size)] for _ in range(board_size)]
 
+    # loop through columns
     for i in range(0, board_size):
         # reset variables for each column
-        print("column: " + str(i))
         col = i
         free_positions = [0, 1, 2, 3, 4, 5, 6, 7]
         og_queen_row = get_col(board, i).index('Q')
         col_arr = get_col(board, i)
+
+        # calc heuristic for positions already habituated spaces
         heuristics[free_positions[og_queen_row]][col] = calculate_heuristic(board)
 
         # remove the index where queen originally lies
         if col_arr[og_queen_row] == 'Q':
             free_positions.pop(og_queen_row)
-        print(free_positions)
         board[og_queen_row][col] = '.'
 
         # loop through available positions and store their heuristic
         for index in range(0, len(free_positions)):
             row = free_positions[index]
-            print("current free pos: " + str(free_positions[index]))
 
             if row != og_queen_row:
                 board[row][col] = 'Q'
                 h = calculate_heuristic(board)
                 heuristics[row][col] = h
-                print("heuristic: " + str(calculate_heuristic(board)))
                 board[row][col] = '.'
 
+        # place queen back in original position
         board[og_queen_row][col] = 'Q'
-        print("NEW BOARD")
-        for row in board:
-            print('  '.join(row))
+
+    # announce and output new board iteration
+    print("NEW BOARD")
+    for row in board:
+        print('  '.join(row))
 
     return heuristics
 
@@ -163,31 +168,40 @@ def get_lowest_value_2d(array_2d):
     return min(flat_list)
 
 
-def hill_climb(board, depth=0, sideways=0, max_depth=80, max_sideways=3, prev_heuristic=None):
+# hill climb / local beam approach to recursively solve a board
+def hill_climb(board, depth=0, sideways=0, max_depth=300, max_sideways=6, prev_heuristic=None):
     if depth >= max_depth:
         return "max depth reached"
 
+    # store heuristics, the lowest value and positions within it
     heuristics = calc_heuristic_array(board)
     min_h = get_lowest_value_2d(heuristics)
-    lowest_h_poss = find_element_2d(heuristics, min_h)
+    lowest_h_positions = find_element_2d(heuristics, min_h)
 
     print("Depth:", depth)
     print("Heuristic:", min_h)
     print("Sideways:", sideways)
-    print("Lowest H Poss:", lowest_h_poss)
+    print("Lowest H Poss:", lowest_h_positions)
 
+    # if solved then re-format board and break
     if min_h == 0:
-        coords = lowest_h_poss[0]
+        coords = lowest_h_positions[0]
         board[get_col(board, coords[1]).index('Q')][coords[1]] = '.'
         board[8 - fixed_queen_pos[1]][fixed_queen_pos[0] - 1] = '∆'
         board[coords[0]][coords[1]] = 'Q'
         print("Solution found at depth:", depth)
-        return board
+        return board, heuristics
 
+    # if heuristic hasn't changed go sideways
     if prev_heuristic is not None and min_h == prev_heuristic:
         sideways += 1
+
+        # random restart once too many sideways movements made
         if sideways >= max_sideways:
             row = random.randint(0, board_size - 1)
+            while row != fixed_queen_pos[0]:
+                row = random.randint(0, board_size - 1)
+
             col = random.randint(0, board_size - 1)
             board[get_col(board, col).index('Q')][col] = '.'
             board[row][col] = 'Q'
@@ -196,8 +210,8 @@ def hill_climb(board, depth=0, sideways=0, max_depth=80, max_sideways=3, prev_he
     else:
         sideways = 0
 
-    for i in range(len(lowest_h_poss)):
-        coords = lowest_h_poss[i]
+    for i in range(len(lowest_h_positions)):
+        coords = lowest_h_positions[i]
         board[get_col(board, coords[1]).index('Q')][coords[1]] = '.'
         board[coords[0]][coords[1]] = 'Q'
         result = hill_climb(board, depth + 1, sideways, max_depth, max_sideways, min_h)
@@ -207,20 +221,28 @@ def hill_climb(board, depth=0, sideways=0, max_depth=80, max_sideways=3, prev_he
     return "no result found within max depth"
 
 
+# generate heuristic value for parsed in board
 def calculate_heuristic(board):
     board[8 - fixed_queen_pos[1]][fixed_queen_pos[0] - 1] = 'Q'
     q_list = []
 
+    # loop through each column
     for i in range(0, board_size):
+
+        # get queen index for current column
         curr_q_row = get_col(board, i).index('Q')
+
+        # array to store threats from either side
         side_func = get_row(board, curr_q_row)[1]
 
+        # check side threats
         for _ in range(len(side_func)):
             arr = side_func
             side = ((curr_q_row, i), arr[_])
             if side not in q_list and side[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
                 q_list.append(side)
 
+        # check diagonal threats
         ul_func = get_UL(board, curr_q_row, i)[1]
         if len(ul_func) > 0:
             for _ in range(len(ul_func)):
@@ -252,9 +274,7 @@ def calculate_heuristic(board):
                 lr = ((curr_q_row, i), arr[_])
                 if lr not in q_list and lr[::-1] not in q_list and not (curr_q_row, i) == arr[_]:
                     q_list.append(lr)
-    h = len(q_list)
-
-    return h
+    return len(q_list)
 
 
 ################# MAIN #####################
@@ -276,6 +296,14 @@ solution = hill_climb(chessboard)
 if isinstance(solution, str):
     print(solution)
 else:
+    print('\n')
+    print('Solved Board')
     # Display the board
-    for row in solution:
+    for row in solution[0]:
         print('  '.join(row))
+
+    print('\n')
+    print('Heuristic Table')
+    # output 2D heuristic array
+    for row in solution[1]:
+        print(" ".join(str(cell).ljust(2) for cell in row))
